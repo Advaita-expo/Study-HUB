@@ -233,7 +233,13 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 async function startServer() {
-  await initializeDatabase();
+  // Database is optional - only initialize if credentials are provided
+  const hasDbConfig = process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD;
+  if (hasDbConfig) {
+    await initializeDatabase();
+  } else {
+    console.log('⚠️  Database not configured - video call features will work without database');
+  }
   
   server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
