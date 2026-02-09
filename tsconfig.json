@@ -20,10 +20,6 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
     "paths": {
       "@/*": [
         "./*"
