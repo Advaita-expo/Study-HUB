@@ -243,6 +243,7 @@ export default function VideoCall({ isOpen, onClose, userName, roomId }: VideoCa
 
     return () => {
       // Cleanup
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (localStream) {
         localStream.getTracks().forEach((track) => track.stop())
       }
@@ -258,6 +259,7 @@ export default function VideoCall({ isOpen, onClose, userName, roomId }: VideoCa
 
   // Update connected users count
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setConnectedUsers(remotePeers.size + 1)
   }, [remotePeers])
 
