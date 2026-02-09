@@ -59,18 +59,26 @@ export default function VideoCall({ isOpen, onClose, userName, roomId }: VideoCa
     })
 
     peer.on('signal', (signalData) => {
-      if (isInitiator) {
+      // Check if this is an ICE candidate
+      if (signalData.type === 'offer') {
         socket.emit('offer', {
           to: peerId,
           from: socket.id,
           fromName: myUserName,
           offer: signalData
         })
-      } else {
+      } else if (signalData.type === 'answer') {
         socket.emit('answer', {
           to: peerId,
           from: socket.id,
           answer: signalData
+        })
+      } else if (signalData.candidate) {
+        // This is an ICE candidate
+        socket.emit('ice-candidate', {
+          to: peerId,
+          from: socket.id,
+          candidate: signalData
         })
       }
     })
@@ -170,11 +178,21 @@ export default function VideoCall({ isOpen, onClose, userName, roomId }: VideoCa
             })
 
             peer.on('signal', (signalData) => {
-              socket.emit('answer', {
-                to: data.from,
-                from: socket.id,
-                answer: signalData
-              })
+              // Check if this is an ICE candidate
+              if (signalData.type === 'answer') {
+                socket.emit('answer', {
+                  to: data.from,
+                  from: socket.id,
+                  answer: signalData
+                })
+              } else if (signalData.candidate) {
+                // This is an ICE candidate
+                socket.emit('ice-candidate', {
+                  to: data.from,
+                  from: socket.id,
+                  candidate: signalData
+                })
+              }
             })
 
             peer.on('stream', (remoteStream) => {
@@ -188,6 +206,10 @@ export default function VideoCall({ isOpen, onClose, userName, roomId }: VideoCa
                 })
                 return updated
               })
+            })
+
+            peer.on('error', (err) => {
+              console.error('Peer error for', data.from, ':', err)
             })
 
             peer.signal(data.offer)
